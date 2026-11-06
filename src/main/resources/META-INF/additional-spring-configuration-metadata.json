@@ -1,0 +1,44 @@
+{
+  "properties": [
+    {
+      "name": "app.upload.dir",
+      "type": "java.lang.String",
+      "description": "Directory used to store uploaded files."
+    },
+    {
+      "name": "app.refresh-token.expiration-days",
+      "type": "java.lang.Long",
+      "description": "Refresh token validity in days."
+    },
+    {
+      "name": "app.password-reset.expiration-minutes",
+      "type": "java.lang.Long",
+      "description": "Password reset token validity in minutes."
+    },
+    {
+      "name": "app.security.bcrypt-strength",
+      "type": "java.lang.Integer",
+      "description": "BCrypt strength used by the password encoder."
+    },
+    {
+      "name": "app.cors.allowed-origins",
+      "type": "java.lang.String",
+      "description": "Comma-separated origins allowed to access the API."
+    },
+    {
+      "name": "app.frontend-url",
+      "type": "java.lang.String",
+      "description": "Frontend base URL used in password reset links."
+    },
+    {
+      "name": "app.mail.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether outgoing email delivery is enabled."
+    },
+    {
+      "name": "app.mail.from",
+      "type": "java.lang.String",
+      "description": "Sender address used for outgoing email."
+    }
+  ]
+}
