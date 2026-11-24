@@ -44,10 +44,7 @@ public class RateLimiter {
     /** Thời gian cửa sổ đếm đăng ký (giây). */
     private static final long REGISTER_WINDOW_SECONDS = 60L;
 
-    /** Số CAPTCHA được cấp tối đa trong một phút trên mỗi IP. */
-    private static final int CAPTCHA_MAX_CHALLENGES = 20;
-
-    private static final long CAPTCHA_WINDOW_SECONDS = 60L;
+    
 
     // ===================== Cache =====================
 
@@ -75,11 +72,6 @@ public class RateLimiter {
      */
     private final Cache<String, AtomicInteger> registerAttemptCache = Caffeine.newBuilder()
             .expireAfterWrite(REGISTER_WINDOW_SECONDS, TimeUnit.SECONDS)
-            .maximumSize(10_000)
-            .build();
-
-    private final Cache<String, AtomicInteger> captchaChallengeCache = Caffeine.newBuilder()
-            .expireAfterWrite(CAPTCHA_WINDOW_SECONDS, TimeUnit.SECONDS)
             .maximumSize(10_000)
             .build();
 
@@ -148,14 +140,6 @@ public class RateLimiter {
                     "Bạn đã đăng ký quá nhiều lần. Vui lòng thử lại sau " +
                     LOGIN_WINDOW_SECONDS + " giây",
                     REGISTER_WINDOW_SECONDS);
-        }
-    }
-
-    public void checkCaptchaChallengeLimit(String ip) {
-        AtomicInteger counter = captchaChallengeCache.get(ip, key -> new AtomicInteger(0));
-        if (counter.incrementAndGet() > CAPTCHA_MAX_CHALLENGES) {
-            throw new TooManyRequestsException("Bạn yêu cầu CAPTCHA quá nhiều lần. Vui lòng thử lại sau một phút",
-                    CAPTCHA_WINDOW_SECONDS);
         }
     }
 

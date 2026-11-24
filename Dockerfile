@@ -2,11 +2,11 @@
 FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
 
-# Copy Maven wrapper và pom.xml trước để tận dụng Docker cache dependencies
+# Copy Maven wrapper và pom.xml trước để tận dụng Docker cache
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
-RUN chmod +x ./mvnw
-RUN ./mvnw dependency:go-offline -B || true
+# Đảm bảo định dạng xuống dòng chuẩn Linux (tránh lỗi CRLF trên Windows)
+RUN sed -i 's/\r$//' ./mvnw && chmod +x ./mvnw
 
 # Copy mã nguồn và đóng gói
 COPY src ./src

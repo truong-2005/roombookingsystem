@@ -32,7 +32,6 @@ public final class SecurityConstants {
 
     // ===== Đường dẫn công khai (không cần đăng nhập) =====
     public static final String[] PUBLIC_ENDPOINTS = {
-            "/api/auth/captcha",
             "/api/auth/register",
             "/api/auth/login",
             "/api/auth/admin/login",

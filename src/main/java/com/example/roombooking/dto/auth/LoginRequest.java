@@ -11,9 +11,11 @@ public record LoginRequest(
         @NotBlank(message = "Mật khẩu không được để trống")
         String password,
 
-        @NotBlank(message = "Vui lòng tải và nhập CAPTCHA")
         String captchaId,
 
-        @NotBlank(message = "Vui lòng nhập đáp án CAPTCHA")
         String captchaAnswer
-) {}
+) {
+    public LoginRequest(String usernameOrEmail, String password) {
+        this(usernameOrEmail, password, null, null);
+    }
+}

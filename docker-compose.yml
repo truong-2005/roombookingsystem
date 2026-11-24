@@ -1,12 +1,12 @@
-version: '3.8'
-
 services:
   # Cơ sở dữ liệu MySQL 8.0
   mysql:
     image: mysql:8.0
     container_name: room_booking_mysql
     restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
+      TZ: Asia/Ho_Chi_Minh
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: room_booking_db
     ports:
@@ -32,16 +32,35 @@ services:
     ports:
       - "8086:8086"
     environment:
+      TZ: Asia/Ho_Chi_Minh
       SPRING_PROFILES_ACTIVE: dev
+      # Kết nối đến container mysql trong cùng mạng Docker
       DB_URL: jdbc:mysql://mysql:3306/room_booking_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh&characterEncoding=UTF-8
       DB_USERNAME: root
       DB_PASSWORD: root
       JWT_SECRET: room-booking-system-super-secret-key-2026-change-me
       CORS_ORIGINS: http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173
+      FRONTEND_URL: http://localhost:3000
       UPLOAD_DIR: uploads
       MAIL_ENABLED: "false"
+      MAIL_FROM: no-reply@roombooking.local
     volumes:
       - uploads_data:/app/uploads
+
+  # Giao diện web phpMyAdmin để xem và quản lý MySQL
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: room_booking_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8085:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
 
 volumes:
   mysql_data:

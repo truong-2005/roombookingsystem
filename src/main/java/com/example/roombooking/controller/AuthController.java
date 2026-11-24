@@ -2,8 +2,6 @@ package com.example.roombooking.controller;
 
 import java.beans.ConstructorProperties;
 
-import org.springframework.http.CacheControl;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +32,6 @@ import com.example.roombooking.dto.auth.RegisterRequest;
 import com.example.roombooking.dto.auth.ResetPasswordRequest;
 import com.example.roombooking.dto.auth.ResetPasswordResponse;
 import com.example.roombooking.dto.auth.VerifyResetTokenRequest;
-import com.example.roombooking.dto.captcha.CaptchaChallengeResponse;
 import com.example.roombooking.security.RateLimiter;
 import com.example.roombooking.service.AuthService;
 import com.example.roombooking.service.CaptchaService;
@@ -49,7 +46,6 @@ import jakarta.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
-    private final CaptchaService captchaService;
     private final RateLimiter rateLimiter;
     private final PasswordResetService passwordResetService;
 
@@ -57,34 +53,17 @@ public class AuthController {
     public AuthController(AuthService authService, CaptchaService captchaService, RateLimiter rateLimiter,
                           PasswordResetService passwordResetService) {
         this.authService = authService;
-        this.captchaService = captchaService;
         this.rateLimiter = rateLimiter;
         this.passwordResetService = passwordResetService;
     }
 
-    @GetMapping("/captcha")
-    @Operation(summary = "Lấy CAPTCHA", description = "Tạo câu hỏi CAPTCHA dùng một lần cho đăng nhập và đăng ký.")
-    @SecurityRequirements
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Tạo CAPTCHA thành công",
-                    content = @Content(schema = @Schema(implementation = CaptchaChallengeResponse.class))),
-            @ApiResponse(responseCode = "429", description = "Gọi quá giới hạn; xem header Retry-After",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    public ResponseEntity<CaptchaChallengeResponse> getCaptcha(HttpServletRequest request) {
-        rateLimiter.checkCaptchaChallengeLimit(clientIp(request));
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .body(captchaService.createChallenge());
-    }
-
     @PostMapping("/login")
-    @Operation(summary = "Đăng nhập", description = "Đăng nhập bằng tên tài khoản hoặc email và CAPTCHA; trả access token cùng refresh token.")
+    @Operation(summary = "Đăng nhập", description = "Đăng nhập bằng tên tài khoản hoặc email; trả access token cùng refresh token.")
     @SecurityRequirements
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Đăng nhập thành công",
                     content = @Content(schema = @Schema(implementation = LoginResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Thông tin không hợp lệ hoặc CAPTCHA sai",
+            @ApiResponse(responseCode = "400", description = "Thông tin không hợp lệ",
                     content = @Content(schema = @Schema(oneOf = {ErrorResponse.class, ValidationErrorResponse.class}))),
             @ApiResponse(responseCode = "401", description = "Tên đăng nhập hoặc mật khẩu không đúng",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -102,12 +81,12 @@ public class AuthController {
     }
 
     @PostMapping("/admin/login")
-    @Operation(summary = "Đăng nhập quản trị viên", description = "Chỉ chấp nhận tài khoản có vai trò ADMIN; yêu cầu CAPTCHA.")
+    @Operation(summary = "Đăng nhập quản trị viên", description = "Chỉ chấp nhận tài khoản có vai trò ADMIN.")
     @SecurityRequirements
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Đăng nhập thành công",
                     content = @Content(schema = @Schema(implementation = LoginResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Thông tin không hợp lệ hoặc CAPTCHA sai",
+            @ApiResponse(responseCode = "400", description = "Thông tin không hợp lệ",
                     content = @Content(schema = @Schema(oneOf = {ErrorResponse.class, ValidationErrorResponse.class}))),
             @ApiResponse(responseCode = "401", description = "Tên đăng nhập hoặc mật khẩu không đúng",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -145,7 +124,7 @@ public class AuthController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tạo tài khoản thành công, trả về token đăng nhập",
                     content = @Content(schema = @Schema(implementation = LoginResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Thông tin không hợp lệ hoặc CAPTCHA sai",
+            @ApiResponse(responseCode = "400", description = "Thông tin không hợp lệ",
                     content = @Content(schema = @Schema(oneOf = {ErrorResponse.class, ValidationErrorResponse.class}))),
             @ApiResponse(responseCode = "409", description = "Tên tài khoản hoặc email đã được sử dụng",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -170,7 +149,7 @@ public class AuthController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tạo tài khoản quản trị thành công, trả về token đăng nhập",
                     content = @Content(schema = @Schema(implementation = LoginResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Thông tin không hợp lệ hoặc CAPTCHA sai",
+            @ApiResponse(responseCode = "400", description = "Thông tin không hợp lệ",
                     content = @Content(schema = @Schema(oneOf = {ErrorResponse.class, ValidationErrorResponse.class}))),
             @ApiResponse(responseCode = "403", description = "Đã có quản trị viên; yêu cầu đăng nhập bằng tài khoản ADMIN",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),

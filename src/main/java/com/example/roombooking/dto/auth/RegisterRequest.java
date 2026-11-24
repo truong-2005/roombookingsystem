@@ -37,12 +37,15 @@ public record RegisterRequest(
         @Pattern(regexp = "^$|^https?://\\S+$", message = "Link ảnh phải bắt đầu bằng http:// hoặc https://")
         String avatarUrl,
 
-        @NotBlank(message = "Vui lòng tải và nhập CAPTCHA")
         String captchaId,
 
-        @NotBlank(message = "Vui lòng nhập đáp án CAPTCHA")
         String captchaAnswer
 ) {
+    public RegisterRequest(String username, String email, String password, String confirmPassword,
+                           String fullName, String phone, String department, String avatarUrl) {
+        this(username, email, password, confirmPassword, fullName, phone, department, avatarUrl, null, null);
+    }
+
     @JsonIgnore
     @AssertTrue(message = "Mật khẩu xác nhận không khớp")
     public boolean isPasswordConfirmed() {

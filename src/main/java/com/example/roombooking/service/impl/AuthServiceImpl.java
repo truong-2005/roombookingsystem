@@ -39,8 +39,6 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
     private final UserMapper userMapper;
-    private final CaptchaService captchaService;
-
     @java.beans.ConstructorProperties({"userRepository", "roleRepository", "passwordEncoder", "jwtService", "refreshTokenService", "userService", "userMapper", "captchaService"})
     public AuthServiceImpl(
         AppUserRepository userRepository,
@@ -59,7 +57,6 @@ public class AuthServiceImpl implements AuthService {
         this.refreshTokenService = refreshTokenService;
         this.userService = userService;
         this.userMapper = userMapper;
-        this.captchaService = captchaService;
     }
 
     // ===================== Đăng nhập =====================
@@ -75,8 +72,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private LoginResponse doLogin(LoginRequest req, boolean adminOnly, String ip, String ua) {
-        captchaService.verify(req.captchaId(), req.captchaAnswer());
-
         // Đăng nhập bằng username HOẶC email; sai tài khoản và sai mật khẩu trả cùng một lỗi
         AppUser user = userRepository.findByUsernameOrEmail(req.usernameOrEmail().trim())
                 .orElseThrow(() -> new BadCredentialsException("Bad credentials"));
@@ -112,8 +107,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private LoginResponse createAccount(RegisterRequest req, boolean admin, String ipAddress, String userAgent) {
-        captchaService.verify(req.captchaId(), req.captchaAnswer());
-
         String username = req.username().trim();
         String email = req.email().trim().toLowerCase();
         if (userRepository.existsByUsernameIgnoreCase(username))
